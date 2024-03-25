@@ -1,3 +1,5 @@
+const prompt=require('prompt-sync')({sigint:true})
+
 function studentMarks (marks) {
     if(marks > 79) {
         console.log("A");
@@ -16,4 +18,10 @@ function studentMarks (marks) {
     }
     
 }
-studentMarks(60)
+const marks=parseInt(prompt("Enter marks: ")) 
+if(marks>=0 && marks<=100){
+    studentMarks(marks)
+}
+else{
+    console.log("Invalid")
+}

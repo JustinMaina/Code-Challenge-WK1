@@ -1,10 +1,11 @@
+const prompt=require('prompt-sync')({sigint:true})
 // Constants for tax rates and deductions
 const KRA_TAX_RATES = {
     0: { rebate: 0, upper_limit: 12298, rate: 10 },
-    12299: { rebate: 1229.80, upper_limit: 23885, rate: 15 },
-    23886: { rebate: 2162.80, upper_limit: 35472, rate: 20 },
-    35473: { rebate: 4296.20, upper_limit: 47159, rate: 25 },
-    47160: { rebate: 6223.20, upper_limit: Infinity, rate: 30 }
+    12299: { rebate: 1229.80, upper_limit: 23885, rate: 25 },
+    23886: { rebate: 2162.80, upper_limit: 35472, rate: 30 },
+    35473: { rebate: 4296.20, upper_limit: 47159, rate: 32.5 },
+    47160: { rebate: 6223.20, upper_limit: Infinity, rate: 35 }
 };
 
 const NHIF_RATES = {
@@ -16,15 +17,15 @@ const NHIF_RATES = {
     20000: 750,
     25000: 850,
     30000: 900,
-    35000: 1000,
-    40000: 1100,
-    45000: 1200,
-    50000: 1300,
-    60000: 1400,
-    70000: 1500,
-    80000: 1600,
-    90000: 1700,
-    100000: 1800
+    35000: 950,
+    40000: 1000,
+    45000: 1100,
+    50000: 1200,
+    60000: 1300,
+    70000: 1400,
+    80000: 1500,
+    90000: 1600,
+    100000: 1700
 };
 
 const NSSF_EMPLOYEE_RATE = 0.06;
@@ -47,6 +48,9 @@ function calculateNhif(income) {
         if (income <= lowerLimit) {
             return NHIF_RATES[lowerLimit];
         }
+        else if(income>100000){
+            return 1700
+        }
     }
 }
 
@@ -59,12 +63,12 @@ function calculateNssf(income) {
 
 // Function to calculate net salary
 function calculateNetSalary(basicSalary, benefits = 0) {
-    const totalIncome = basicSalary + benefits;
-    const paye = calculatePaye(totalIncome);
-    const nhif = calculateNhif(totalIncome);
+    const grossSalary= basicSalary + benefits;
+    const paye = calculatePaye(grossSalary);
+    const nhif = calculateNhif(grossSalary);
     const [nssfEmployee, nssfEmployer] = calculateNssf(basicSalary);
-    const grossSalary = totalIncome - paye - nhif - nssfEmployee;
-    const netSalary = grossSalary - nssfEmployer;
+    const netSalary = grossSalary - paye - nhif - nssfEmployee - benefits;
+    
     return {
         'Gross Salary': grossSalary,
         'PAYE': paye,
@@ -74,4 +78,6 @@ function calculateNetSalary(basicSalary, benefits = 0) {
         'Net Salary': netSalary
     };
 }
-
+const basicSalary=parseInt(prompt("Enter basic salary: "))
+const benefits=parseInt(prompt("Enter benefits: "))
+console.log(calculateNetSalary(basicSalary,benefits))
